@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>菜夹馍消消乐</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 像素风字体，接近星露谷的数码感 -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="game-root">
+      <header class="game-header">
+        <div class="game-title">CAI JIA MO POP</div>
+        <div class="timebar" aria-label="Time bar">
+          <div id="timeBarFill" class="timebar-fill"></div>
+        </div>
+      </header>
+
+      <main class="game-main">
+        <div id="startOverlay" class="start-overlay">
+          <div class="start-content">
+            <div class="start-title">QIN REN JI HE !</div>
+            <button id="startBtn" class="primary-btn start-btn">TAP TO START</button>
+          </div>
+        </div>
+
+        <section class="board-wrapper">
+          <div id="board" class="board"></div>
+          <div class="board-overlay hidden" id="endOverlay">
+            <div class="overlay-content">
+              <h2>CAIJIAMO READY!</h2>
+              <div class="end-summary" id="endSummary">
+                <div class="end-row">
+                  <img class="end-img" src="./chengpincaijiamo/caijiamo4.png" alt="caijiamo4" />
+                  <div class="end-mult">x <span id="endCount4">0</span></div>
+                </div>
+                <div class="end-row">
+                  <img class="end-img" src="./chengpincaijiamo/caijiamo3.png" alt="caijiamo3" />
+                  <div class="end-mult">x <span id="endCount3">0</span></div>
+                </div>
+                <div class="end-row">
+                  <img class="end-img" src="./chengpincaijiamo/caijiamo2.png" alt="caijiamo2" />
+                  <div class="end-mult">x <span id="endCount2">0</span></div>
+                </div>
+                <div class="end-row">
+                  <img class="end-img" src="./chengpincaijiamo/caijiamo1.png" alt="caijiamo1" />
+                  <div class="end-mult">x <span id="endCount1">0</span></div>
+                </div>
+              </div>
+              <button id="restartBtn" class="primary-btn">再来一份</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="caijiamo-wrapper">
+          <div class="caijiamo-title">MY CAIJIAMO</div>
+          <div id="caijiamoStage" class="caijiamo-stage"></div>
+        </section>
+      </main>
+
+      <footer class="game-footer">
+        <button id="shuffleBtn" class="ghost-btn">REFRESH DISHES</button>
+        <span class="tip-text">Pick three connected same dishes to cook one CAIJIAMO. Your CAIJIAMO bar grows with each set!</span>
+      </footer>
+    </div>
+
+    <script src="./game.js"></script>
+  </body>
+  </html>
+
