@@ -515,6 +515,7 @@ body {
 }
 
 .menu-card {
+  position: relative;
   background: #ffffff;
   border: 3px solid #111827;
   box-shadow: 4px 4px 0 #111827;
@@ -522,6 +523,38 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.menu-fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(17, 24, 39, 0.35);
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: none;
+  line-height: 1;
+  font-size: 14px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.menu-fav-btn:active {
+  transform: scale(0.92);
+}
+
+.menu-fav-btn.is-fav {
+  background: transparent;
+  color: #ff4d8d;
+  text-shadow: 0 0 0 #111827;
 }
 
 .menu-image {
