@@ -11,6 +11,7 @@
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-pill: 999px;
+  --cell-size: 64px; /* JS 会按屏幕宽度动态覆盖 */
 }
 
 *,
@@ -25,6 +26,7 @@ body {
     'SF Pro Text', 'Segoe UI', sans-serif;
   background: #ffffff;
   color: var(--text-main);
+  overscroll-behavior: none;
 }
 
 .game-root {
@@ -55,10 +57,11 @@ body {
 
 .timebar {
   width: 150px;
-  height: 14px;
-  border-radius: 6px;
-  background: rgba(147, 197, 253, 0.35);
-  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.22);
+  height: 16px;
+  border-radius: 0;
+  background: #0b1220;
+  border: 3px solid #111827;
+  box-shadow: 3px 3px 0 #111827, inset 0 0 0 2px rgba(255, 255, 255, 0.08);
   overflow: hidden;
   align-self: center;
 }
@@ -66,10 +69,12 @@ body {
 .timebar-fill {
   height: 100%;
   width: 100%;
-  background: linear-gradient(
+  background: repeating-linear-gradient(
     90deg,
-    rgba(59, 130, 246, 0.9),
-    rgba(147, 197, 253, 0.9)
+    #22c55e 0,
+    #22c55e 10px,
+    #16a34a 10px,
+    #16a34a 14px
   );
   transform-origin: left center;
 }
@@ -116,6 +121,10 @@ body {
 
 .start-content {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .start-title {
@@ -128,14 +137,14 @@ body {
 }
 
 .start-btn {
-  margin-top: 4px;
+  margin-top: 0;
 }
 
 .tile {
   position: absolute;
-  width: 60px;
-  height: 60px;
-  border-radius: 22px;
+  width: calc(var(--cell-size) - 4px);
+  height: calc(var(--cell-size) - 4px);
+  border-radius: calc((var(--cell-size) - 4px) * 0.36);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,6 +152,8 @@ body {
   font-weight: 600;
   cursor: pointer;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   padding: 0;
   box-shadow: none;
   transition: transform 0.18s ease, opacity 0.2s ease;
@@ -312,8 +323,8 @@ body {
 .ghost-btn {
   border: none;
   outline: none;
-  border-radius: var(--radius-pill);
-  padding: 8px 16px;
+  border-radius: 0;
+  padding: 10px 16px;
   font-size: 9px;
   font-weight: 400;
   cursor: pointer;
@@ -321,27 +332,34 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #f97316, #facc15);
-  color: #1f2937;
-  box-shadow: 0 8px 18px rgba(194, 65, 12, 0.55);
+  background: #facc15;
+  color: #111827;
+  border: 3px solid #111827;
+  box-shadow: 4px 4px 0 #111827;
 }
 
 .primary-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 4px 10px rgba(194, 65, 12, 0.6);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #111827;
 }
 
 .ghost-btn {
-  background: rgba(15, 23, 42, 0.9);
+  background: #0f172a;
   color: #e5e7eb;
-  border: 1px solid rgba(148, 163, 184, 0.7);
+  border: 3px solid #111827;
+  box-shadow: 4px 4px 0 #111827;
 }
 
 .ghost-btn:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #111827;
 }
 
 .board-overlay {
@@ -454,14 +472,62 @@ body {
     width: 110px;
   }
 
-  .tile {
-    width: 56px;
-    height: 56px;
-  }
-
   .slot .tile-mini {
     width: 42px;
     height: 42px;
   }
+}
+
+/* MENU 页面 */
+.menu-root {
+  max-width: 720px;
+}
+
+.menu-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-subtitle {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #111827;
+  text-shadow: 0 2px 0 #e5e7eb;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.menu-card {
+  background: #ffffff;
+  border: 3px solid #111827;
+  box-shadow: 4px 4px 0 #111827;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 3px solid #111827;
+  background: #0b1220;
+}
+
+.menu-name {
+  font-size: 9px;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  color: #111827;
+  word-break: break-word;
 }
 

@@ -61,7 +61,8 @@ function pickNewDishBatch() {
 // 网格配置：用规则网格避免图标重叠，并支持纵向堆积 & 下落
 const GRID_COLS = 7;
 const GRID_ROWS = 7;
-const CELL_SIZE = 64;
+const BASE_CELL_SIZE = 64;
+let cellSize = BASE_CELL_SIZE;
 
 const boardEl = document.getElementById('board');
 const stepCountEl = document.getElementById('stepCount');
@@ -116,22 +117,45 @@ function createTileElement(tile) {
   label.textContent = tile.label;
   el.appendChild(label);
 
-  el.addEventListener('click', () => onTileClick(tile));
+  el.addEventListener(
+    'pointerdown',
+    (e) => {
+      // 手机上用 pointerdown 更跟手；同时避免触摸导致页面滚动/选中文本
+      e.preventDefault();
+      onTileClick(tile);
+    },
+    { passive: false }
+  );
 
   tile.el = el;
   return el;
+}
+
+function updateResponsiveMetrics() {
+  if (!boardEl) return;
+  const rect = boardEl.getBoundingClientRect();
+  const availableWidth = rect.width;
+  // 给左右留一点余量，避免小屏边缘裁切
+  const target = Math.floor((availableWidth - 12) / GRID_COLS);
+  cellSize = Math.max(44, Math.min(BASE_CELL_SIZE, target));
+  document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+
+  // 让棋盘高度能完整容纳 7 行格子 + 顶部留白
+  const offsetY = 20;
+  const needed = offsetY + GRID_ROWS * cellSize + 20;
+  boardEl.style.minHeight = `${needed}px`;
 }
 
 // 根据当前 row/col 把 tile 放到棋盘上，整齐排布在网格中
 function positionTileInGrid(tile) {
   const rect = boardEl.getBoundingClientRect();
   const width = rect.width;
-  const totalGridWidth = GRID_COLS * CELL_SIZE;
+  const totalGridWidth = GRID_COLS * cellSize;
   const offsetX = (width - totalGridWidth) / 2;
   const offsetY = 20;
 
-  const baseX = offsetX + tile.col * CELL_SIZE;
-  const baseY = offsetY + tile.row * CELL_SIZE;
+  const baseX = offsetX + tile.col * cellSize;
+  const baseY = offsetY + tile.row * cellSize;
 
   tile.x = baseX;
   tile.y = baseY;
@@ -591,9 +615,23 @@ shuffleBtn.addEventListener('click', () => {
 window.addEventListener('load', () => {
   // 初次加载也先抽一批菜品（点击开始后会再次抽一批）
   pickNewDishBatch();
+  updateResponsiveMetrics();
   layoutBoard();
   updateCaijiamoDisplay();
 });
+
+let resizeRaf = 0;
+function handleResize() {
+  if (resizeRaf) cancelAnimationFrame(resizeRaf);
+  resizeRaf = requestAnimationFrame(() => {
+    updateResponsiveMetrics();
+    // 只重排布局，不重开局
+    tiles.forEach((t) => positionTileInGrid(t));
+  });
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('orientationchange', handleResize);
 
 function startGame() {
   if (gameStarted) return;
