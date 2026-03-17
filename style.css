@@ -136,6 +136,15 @@ body {
   color: #111827;
 }
 
+.start-logo {
+  width: min(260px, 70vw);
+  height: auto;
+  border: 3px solid #111827;
+  box-shadow: 4px 4px 0 #111827;
+  background: #ffffff;
+  image-rendering: pixelated;
+}
+
 .start-btn {
   margin-top: 0;
 }
