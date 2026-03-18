@@ -240,7 +240,7 @@ body {
   border-radius: inherit;
   object-fit: cover;
   /* 更激进地放大，裁掉更多边缘，让视觉上的菜盘大小接近缩格子前的效果 */
-  transform: scale(1.24);
+  transform: scale(1.30);
 }
 
 .tile:hover {
