@@ -16,6 +16,7 @@
     <div class="game-root calendar-root">
       <header class="game-header">
         <div class="game-title">CALENDAR</div>
+        <div aria-hidden="true"></div>
         <button class="ghost-btn" type="button" onclick="location.href='./index.html'">
           BACK
         </button>
@@ -52,7 +53,13 @@
           </div>
           <div id="calendarGrid" class="calendar-grid" aria-label="Calendar days"></div>
           <div class="calendar-hint">
-            Tap a day to add/remove a CAIJIAMO.
+            Did you have a
+            <img
+              class="calendar-hint-icon"
+              src="./chengpincaijiamo/caijiamo1.png"
+              alt="caijiamo1"
+            />
+            today?
           </div>
         </section>
 
@@ -71,6 +78,7 @@
       </main>
     </div>
 
+    <script src="./ui-sound.js"></script>
     <script src="./calendar.js"></script>
     <script>
       if ('serviceWorker' in navigator) {

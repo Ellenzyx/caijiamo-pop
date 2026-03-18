@@ -39,13 +39,15 @@ body {
     calc(16px + env(safe-area-inset-left));
   max-width: 520px;
   margin: 0 auto;
+  position: relative;
 }
 
 .game-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   margin-bottom: 12px;
+  column-gap: 10px;
 }
 
 .game-title {
@@ -56,6 +58,7 @@ body {
   color: #111827;
   text-shadow: 0 2px 0 #e5e7eb;
   white-space: nowrap;
+  justify-self: start;
 }
 
 .timebar {
@@ -67,6 +70,18 @@ body {
   box-shadow: 3px 3px 0 #111827, inset 0 0 0 2px rgba(255, 255, 255, 0.08);
   overflow: hidden;
   align-self: center;
+  justify-self: center; /* 居中放置时间条 */
+}
+
+/* 所有页面的 BACK：右侧对齐，与标题对称 */
+.game-header > .ghost-btn,
+.game-header > #backBtn {
+  justify-self: end;
+}
+
+/* 主页有 timebar 时，BACK 参与网格排布（不再绝对定位） */
+#backBtn {
+  position: static;
 }
 
 .timebar-fill {
@@ -293,7 +308,11 @@ body {
   border-radius: var(--radius-lg);
   background: #f3f4f6;
   box-shadow: var(--shadow-soft);
-  min-height: 120px; /* 缩短整体高度，减少中间空白 */
+  min-height: 200px; /* 扩大区域，容纳更多菜夹馍 */
+}
+
+.end-open .caijiamo-wrapper {
+  display: none; /* 结算弹窗时隐藏 MY CAIJIAMO 区域 */
 }
 
 .caijiamo-title {
@@ -311,15 +330,16 @@ body {
   gap: 10px;
   padding: 8px 4px 10px;
   flex-wrap: wrap;
-  min-height: 80px;
-  max-height: 120px;
-  overflow: hidden; /* 多出的 CAIJIAMO 不再撑开整个区域 */
+  height: 160px; /* 固定可用高度，JS 会自动缩放以塞下全部 */
+  overflow: visible;
+  --caijiamo-scale: 1;
 }
 
 .caijiamo-image {
   width: 96px;
   height: auto;
   transform-origin: center bottom;
+  transform: scale(var(--caijiamo-scale));
   transition: transform 0.2s ease-out;
 }
 
@@ -430,18 +450,22 @@ body {
 
 .overlay-content {
   text-align: center;
-  padding: 18px 16px;
+  padding: 22px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px; /* 增加纵向间距，手机更舒服 */
 }
 
 .overlay-content h2 {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 18px;
 }
 
 .celebrate-stars {
   position: relative;
   height: 40px;
-  margin-bottom: 6px;
+  margin: 0;
 }
 
 .celebrate-stars .star {
@@ -499,7 +523,7 @@ body {
 }
 
 .unlock-section {
-  margin: 8px 0 14px;
+  margin: 0;
   text-align: center;
 }
 
@@ -533,7 +557,7 @@ body {
   flex-direction: column;
   gap: 10px;
   align-items: center;
-  margin: 8px 0 14px;
+  margin: 0;
 }
 
 .end-row {
@@ -902,8 +926,18 @@ body {
   margin-top: 6px;
   font-size: 8px;
   color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
+.calendar-hint-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
 .calendar-year-header {
   display: flex;
   align-items: center;

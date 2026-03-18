@@ -1,5 +1,5 @@
 /* Minimal offline cache for CAI JIA MO POP */
-const CACHE_NAME = 'caijiamo-pop-v1';
+const CACHE_NAME = 'caijiamo-pop-v2';
 
 const CORE_ASSETS = [
   './',

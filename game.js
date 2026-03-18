@@ -122,6 +122,8 @@ const caijiamoStageEl = document.getElementById('caijiamoStage');
 const timeBarFillEl = document.getElementById('timeBarFill');
 const startOverlayEl = document.getElementById('startOverlay');
 const startBtnEl = document.getElementById('startBtn');
+const backBtnEl = document.getElementById('backBtn');
+const gameRootEl = document.querySelector('.game-root');
 const endCount4El = document.getElementById('endCount4');
 const endCount3El = document.getElementById('endCount3');
 const endCount2El = document.getElementById('endCount2');
@@ -142,8 +144,145 @@ let timerStartMs = 0;
 let timerRaf = 0;
 let gameStarted = false;
 let audioCtx = null;
+let bgmGain = null;
+let bgmInterval = 0;
+let bgmStep = 0;
 
 const GAME_DURATION_MS = 60_000;
+
+function ensureAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function midiToFreq(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function setBgmVolume(vol, rampMs = 120) {
+  if (!bgmGain || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const target = Math.max(0.0001, Math.min(0.25, vol));
+  bgmGain.gain.cancelScheduledValues(now);
+  bgmGain.gain.setValueAtTime(Math.max(0.0001, bgmGain.gain.value || 0.0001), now);
+  bgmGain.gain.exponentialRampToValueAtTime(target, now + rampMs / 1000);
+}
+
+function startBgm() {
+  try {
+    const ctx = ensureAudioContext();
+    if (!bgmGain) {
+      bgmGain = ctx.createGain();
+      bgmGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      bgmGain.connect(ctx.destination);
+    }
+    if (bgmInterval) return;
+
+    // 轻量像素 BGM：8-bit 风格分解和弦 + 简单低音
+    const bpm = 108;
+    const stepSec = 60 / bpm / 2; // 8 分音符
+    const root = 60; // C4
+    const prog = [
+      [root, root + 4, root + 7], // C
+      [root - 2, root + 2, root + 5],
+      [root - 5, root - 1, root + 2],
+      [root - 7, root - 3, root],
+    ];
+
+    setBgmVolume(0.045, 140);
+    bgmStep = 0;
+
+    const scheduleTick = () => {
+      if (gameOver || !gameStarted) return;
+      const now = ctx.currentTime;
+
+      const bar = Math.floor(bgmStep / 8) % prog.length;
+      const chord = prog[bar];
+      const idx = bgmStep % 8;
+
+      const melMidi = chord[idx % 3] + (idx === 6 ? 12 : 0);
+      const bassMidi = chord[0] - 24 + (idx % 2 === 0 ? 0 : 12);
+
+      const makeNote = (midi, type, dur, gainVal) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(midiToFreq(midi), now);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(gainVal, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc.connect(g);
+        g.connect(bgmGain);
+        osc.start(now);
+        osc.stop(now + dur + 0.02);
+      };
+
+      makeNote(melMidi, 'square', stepSec * 0.9, 0.06);
+      if (idx % 2 === 0) {
+        makeNote(bassMidi, 'triangle', stepSec * 0.95, 0.035);
+      }
+
+      bgmStep += 1;
+    };
+
+    scheduleTick();
+    bgmInterval = window.setInterval(scheduleTick, stepSec * 1000);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function stopBgm() {
+  try {
+    if (bgmInterval) {
+      clearInterval(bgmInterval);
+      bgmInterval = 0;
+    }
+    if (audioCtx && bgmGain) {
+      setBgmVolume(0.0001, 180);
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+function fitCaijiamoToStage() {
+  if (!caijiamoStageEl) return;
+  const imgs = caijiamoStageEl.querySelectorAll('.caijiamo-image');
+  const n = imgs.length;
+  if (n <= 0) {
+    caijiamoStageEl.style.setProperty('--caijiamo-scale', '1');
+    return;
+  }
+
+  const stageRect = caijiamoStageEl.getBoundingClientRect();
+  const stageW = stageRect.width;
+  const stageH = stageRect.height;
+  if (!stageW || !stageH) return;
+
+  // 这些值要与 CSS 中的宽度/gap 保持一致
+  const baseW = 96;
+  const gap = 10;
+  // 高度用一个保守估计（图片是 auto height），让缩放更稳定
+  const baseH = 72;
+
+  const perRow = Math.max(1, Math.floor((stageW + gap) / (baseW + gap)));
+  const rows = Math.ceil(n / perRow);
+
+  const neededW = perRow * baseW + (perRow - 1) * gap;
+  const neededH = rows * baseH + Math.max(0, rows - 1) * gap;
+
+  const scaleW = stageW / neededW;
+  const scaleH = stageH / neededH;
+  const scale = Math.max(0.45, Math.min(1, scaleW, scaleH));
+
+  caijiamoStageEl.style.setProperty('--caijiamo-scale', String(scale));
+}
 
 function sampleDishType() {
   const source = activeDishTypes.length > 0 ? activeDishTypes : ALL_CUISINE_IMAGES.map(toDishType);
@@ -318,12 +457,7 @@ function onTileClick(tile) {
 
 function playPopSound() {
   try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+    ensureAudioContext();
 
     const now = audioCtx.currentTime;
 
@@ -351,12 +485,7 @@ function playPopSound() {
 
 function playDingSound() {
   try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+    ensureAudioContext();
 
     const now = audioCtx.currentTime;
 
@@ -410,12 +539,7 @@ function playDingSound() {
 
 function playWinSparkleSound() {
   try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+    ensureAudioContext();
 
     const now = audioCtx.currentTime;
     const master = audioCtx.createGain();
@@ -639,6 +763,7 @@ function updateCaijiamoDisplay() {
   if (!caijiamoStageEl) return;
 
   caijiamoStageEl.innerHTML = '';
+  caijiamoStageEl.style.setProperty('--caijiamo-scale', '1');
 
   if (comboCount <= 0) return;
 
@@ -652,7 +777,6 @@ function updateCaijiamoDisplay() {
     img.className = 'caijiamo-image';
     img.src = './chengpincaijiamo/caijiamo4.png';
     img.alt = 'CAIJIAMO stage 4';
-    img.style.transform = 'scale(1)';
     caijiamoStageEl.appendChild(img);
   }
 
@@ -662,14 +786,18 @@ function updateCaijiamoDisplay() {
     img.className = 'caijiamo-image';
     img.src = `./chengpincaijiamo/caijiamo${remainder}.png`;
     img.alt = `CAIJIAMO stage ${remainder}`;
-    img.style.transform = 'scale(1)';
     caijiamoStageEl.appendChild(img);
   }
+
+  // 渲染后按可用空间缩放，确保全部显示
+  requestAnimationFrame(fitCaijiamoToStage);
 }
 
 function showEnd() {
   gameOver = true;
   renderEndSummary();
+  if (gameRootEl) gameRootEl.classList.add('end-open');
+  stopBgm();
   const newly = unlockNewDishes(2);
   if (celebrateStarsEl) {
     celebrateStarsEl.classList.remove('active');
@@ -707,6 +835,35 @@ function showEnd() {
   }
 }
 
+function goHome() {
+  // 回到开始界面：停止计时与音效触发，隐藏结算弹窗
+  gameOver = true;
+  gameStarted = false;
+  selectedTiles = [];
+
+  if (timerRaf) {
+    cancelAnimationFrame(timerRaf);
+    timerRaf = 0;
+  }
+
+  if (endOverlayEl) {
+    endOverlayEl.classList.add('hidden');
+  }
+
+  if (timeBarFillEl) {
+    timeBarFillEl.classList.remove('danger');
+    timeBarFillEl.style.transform = 'scaleX(1)';
+  }
+
+  if (startOverlayEl) {
+    startOverlayEl.style.display = '';
+  }
+  // 首页不显示 BACK
+  if (backBtnEl) backBtnEl.style.display = 'none';
+  if (gameRootEl) gameRootEl.classList.remove('end-open');
+  stopBgm();
+}
+
 function resetGame() {
   gameOver = false;
   stepCount = 0;
@@ -715,6 +872,7 @@ function resetGame() {
   if (stepCountEl) stepCountEl.textContent = '0';
   if (comboCountEl) comboCountEl.textContent = '0';
   endOverlayEl.classList.add('hidden');
+  if (gameRootEl) gameRootEl.classList.remove('end-open');
    if (timeBarFillEl) {
      timeBarFillEl.classList.remove('danger');
      timeBarFillEl.style.transform = 'scaleX(1)';
@@ -724,10 +882,14 @@ function resetGame() {
   pickNewDishBatch();
   layoutBoard();
   updateCaijiamoDisplay();
+  startBgm();
   startTimer();
 }
 
 restartBtn.addEventListener('click', resetGame);
+if (backBtnEl) {
+  backBtnEl.addEventListener('click', goHome);
+}
 
 window.addEventListener('load', () => {
   // 初次加载也先抽一批菜品（点击开始后会再次抽一批）
@@ -735,6 +897,8 @@ window.addEventListener('load', () => {
   updateResponsiveMetrics();
   layoutBoard();
   updateCaijiamoDisplay();
+  // 启动首页不显示 BACK
+  if (backBtnEl) backBtnEl.style.display = 'none';
 });
 
 let resizeRaf = 0;
@@ -744,6 +908,7 @@ function handleResize() {
     updateResponsiveMetrics();
     // 只重排布局，不重开局
     tiles.forEach((t) => positionTileInGrid(t));
+    fitCaijiamoToStage();
   });
 }
 
@@ -756,8 +921,18 @@ function startGame() {
   if (startOverlayEl) {
     startOverlayEl.style.display = 'none';
   }
+  if (backBtnEl) backBtnEl.style.display = '';
+  startBgm();
   resetGame();
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopBgm();
+  } else if (gameStarted && !gameOver) {
+    startBgm();
+  }
+});
 
 if (startBtnEl) {
   startBtnEl.addEventListener('click', startGame);
