@@ -1074,3 +1074,100 @@ body {
   }
 }
 
+/* ABOUT 页面 */
+.about-root {
+  max-width: 720px;
+}
+
+.about-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-lang-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.about-lang-btn {
+  min-width: 72px;
+}
+
+.about-lang-btn.is-active {
+  background: #facc15;
+  color: #111827;
+}
+
+.about-panel {
+  padding: 12px 12px 14px;
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  box-shadow: var(--shadow-soft);
+}
+
+.about-section {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #111827;
+}
+
+.about-section-hidden {
+  display: none;
+}
+
+.about-title {
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.about-subtitle {
+  font-size: 11px;
+  margin: 12px 0 6px;
+}
+
+.about-paragraph {
+  margin: 6px 0;
+}
+
+.about-list {
+  margin: 6px 0 10px 16px;
+  padding: 0;
+}
+
+.about-ol {
+  margin: 6px 0 6px 18px;
+  padding: 0;
+}
+
+.about-code {
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  border-radius: 8px;
+  font-size: 10px;
+  overflow-x: auto;
+}
+
+.about-code code {
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+@media (max-width: 480px) {
+  .about-section {
+    font-size: 10px;
+  }
+
+  .about-title {
+    font-size: 11px;
+  }
+
+  .about-code {
+    font-size: 9px;
+  }
+}
+

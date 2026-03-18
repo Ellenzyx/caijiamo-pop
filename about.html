@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CAIJIAMO POP - ABOUT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1220" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+  </head>
+  <body>
+    <div class="game-root about-root">
+      <header class="game-header">
+        <div class="game-title">ABOUT</div>
+        <button class="ghost-btn" type="button" onclick="location.href='./index.html'">
+          BACK
+        </button>
+      </header>
+
+      <main class="about-main">
+        <section class="about-lang-toggle">
+          <button
+            id="aboutZhBtn"
+            class="primary-btn about-lang-btn is-active"
+            type="button"
+          >
+            中
+          </button>
+          <button id="aboutEnBtn" class="ghost-btn about-lang-btn" type="button">
+            ENG
+          </button>
+        </section>
+
+        <section class="about-panel">
+          <div id="aboutZh" class="about-section">
+            <h2 class="about-title">CAIJIAMO POP / 菜夹馍消消乐</h2>
+            <p class="about-paragraph">
+              <strong>CAIJIAMO POP</strong> 是一个为手机优先设计的网页小游戏，点开链接即可玩，无需下载。
+            </p>
+            <p class="about-paragraph">
+              在 7×7 的菜品棋盘上，点击选中相邻的同类菜，三连即可做出一份菜夹馍；每局 60 秒，右上角的时间条会在最后 10 秒变红并抖动提醒。
+            </p>
+            <ul class="about-list">
+              <li>MY CAIJIAMO：每完成若干三连，会在下方堆叠出不同阶段的菜夹馍图片。</li>
+              <li>
+                菜单（MENU）：展示所有菜品。每玩完一局会解锁两道新菜，已解锁菜品可以查看中英文做法，未解锁菜品会以灰色显示且无法查看做法，只能收藏。
+              </li>
+              <li>
+                日历（CALENDAR）：
+                <br />- MONTH：点某一天可以标记“这天吃过菜夹馍”，显示为小
+                <code>caijiamo1</code> 图标。<br />- YEAR：按月统计一年中吃菜夹馍的频率，用数码风条形图展示，并可切换年份。
+              </li>
+            </ul>
+            <h3 class="about-subtitle">如何在本地运行</h3>
+            <ol class="about-ol">
+              <li>确保已安装 Python 3。</li>
+              <li>在项目根目录下启动本地服务器：</li>
+            </ol>
+            <pre class="about-code"><code>cd CAIJIAMO_POP
+python3 -m http.server 5173</code></pre>
+            <ol start="3" class="about-ol">
+              <li>在电脑浏览器打开 <code>http://localhost:5173/</code>。</li>
+              <li>手机与电脑在同一 Wi‑Fi 下，手机浏览器访问 <code>http://你的电脑IP:5173/</code>。</li>
+            </ol>
+          </div>
+
+          <div id="aboutEn" class="about-section about-section-hidden">
+            <h2 class="about-title">CAIJIAMO POP</h2>
+            <p class="about-paragraph">
+              <strong>CAIJIAMO POP</strong> is a mobile‑first web puzzle game. You can play it directly in the browser without installing anything.
+            </p>
+            <p class="about-paragraph">
+              On a 7×7 grid of dishes, tap adjacent tiles of the same type; matching three cooks one CAIJIAMO. Each round lasts 60 seconds, and the time bar turns red and shakes during the last 10 seconds.
+            </p>
+            <ul class="about-list">
+              <li>MY CAIJIAMO: Completed matches stack different CAIJIAMO stages in the lower area.</li>
+              <li>
+                MENU: Shows all dishes. Each finished round unlocks two new dishes. Unlocked dishes are colorful and link to Chinese/English recipes; locked ones are gray and cannot be opened (but can be favorited).
+              </li>
+              <li>
+                CALENDAR:
+                <br />- MONTH view: tap a day to toggle a small <code>caijiamo1</code> icon, marking “ate CAIJIAMO on this day”.<br />-
+                YEAR view: shows, per month, how many days CAIJIAMO was eaten, using a retro‑style bar chart, and you can move across years.
+              </li>
+            </ul>
+            <h3 class="about-subtitle">Running locally</h3>
+            <ol class="about-ol">
+              <li>Make sure Python 3 is installed.</li>
+              <li>From the project root, start a simple static server:</li>
+            </ol>
+            <pre class="about-code"><code>cd CAIJIAMO_POP
+python3 -m http.server 5173</code></pre>
+            <ol start="3" class="about-ol">
+              <li>Open <code>http://localhost:5173/</code> in your desktop browser.</li>
+              <li>With your phone on the same Wi‑Fi, visit <code>http://&lt;your-computer-ip&gt;:5173/</code> in the mobile browser.</li>
+            </ol>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./about.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js');
+        });
+      }
+    </script>
+  </body>
+</html>
+
