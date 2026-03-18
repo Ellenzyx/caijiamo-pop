@@ -1,6 +1,8 @@
 ## CAIJIAMO POP / 菜夹馍消消乐
 
-**在线试玩**：`https://caijiamo-pop.vercel.app`
+**在线试玩**：
+`https://ellenzyx.github.io/caijiamo-pop/`
+`https://caijiamo-pop.vercel.app`
 
 [English](README.md) | [中文](README.zh.md)
 

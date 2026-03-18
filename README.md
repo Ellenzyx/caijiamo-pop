@@ -1,6 +1,8 @@
 ## CAIJIAMO POP
 
-**Play now**: `https://caijiamo-pop.vercel.app`
+**Play now**: 
+`https://ellenzyx.github.io/caijiamo-pop/`
+`https://caijiamo-pop.vercel.app`
 
 [English](README.md) | [中文](README.zh.md)
 
