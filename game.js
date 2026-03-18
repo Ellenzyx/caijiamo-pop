@@ -194,7 +194,7 @@ function startBgm() {
       [root - 7, root - 3, root],
     ];
 
-    setBgmVolume(0.07, 140);
+    setBgmVolume(0.1, 140);
     bgmStep = 0;
 
     const scheduleTick = () => {
