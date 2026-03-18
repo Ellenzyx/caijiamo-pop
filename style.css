@@ -665,8 +665,8 @@ body {
   }
 
   .calendar-cell-icon {
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
   }
 
   .calendar-hint {
@@ -909,8 +909,8 @@ body {
 }
 
 .calendar-cell-icon {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 999px;
   background-color: #ffffff;
   background-size: cover;
