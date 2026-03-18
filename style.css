@@ -33,7 +33,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: calc(16px + env(safe-area-inset-top))
+    calc(16px + env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom))
+    calc(16px + env(safe-area-inset-left));
   max-width: 520px;
   margin: 0 auto;
 }
@@ -79,13 +82,42 @@ body {
   transform-origin: left center;
 }
 
+.timebar-fill.danger {
+  background: repeating-linear-gradient(
+    90deg,
+    #ef4444 0,
+    #ef4444 10px,
+    #b91c1c 10px,
+    #b91c1c 14px
+  );
+  animation: timebar-shake 0.16s ease-in-out infinite;
+}
+
+@keyframes timebar-shake {
+  0% {
+    margin-left: 0;
+  }
+  25% {
+    margin-left: -1px;
+  }
+  50% {
+    margin-left: 1px;
+  }
+  75% {
+    margin-left: -1px;
+  }
+  100% {
+    margin-left: 0;
+  }
+}
+
 /* .game-stats 已移除（右侧改为时间条） */
 
 .game-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px; /* 上下区域更紧凑一些 */
   position: relative;
 }
 
@@ -97,13 +129,14 @@ body {
   padding: 10px;
   box-shadow: var(--shadow-soft);
   overflow: hidden;
+  touch-action: none;
 }
 
 .board {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 480px;
+  min-height: 440px; /* 略微缩短菜品区下方空白 */
   border-radius: 14px;
   background: #ffffff;
   overflow: hidden;
@@ -151,9 +184,10 @@ body {
 
 .tile {
   position: absolute;
-  width: calc(var(--cell-size) - 4px);
-  height: calc(var(--cell-size) - 4px);
-  border-radius: calc((var(--cell-size) - 4px) * 0.36);
+  /* 稍微缩小格子尺寸，给选中高亮留出间距 */
+  width: calc(var(--cell-size) - 6px);
+  height: calc(var(--cell-size) - 6px);
+  border-radius: calc((var(--cell-size) - 6px) * 0.36);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,6 +205,7 @@ body {
 }
 
 .tile-selected {
+  /* 恢复原来更有存在感的粗黄线 */
   box-shadow: 0 0 0 3px #facc15;
 }
 
@@ -189,10 +224,13 @@ body {
   height: 100%;
   border-radius: inherit;
   object-fit: cover;
+  /* 更激进地放大，裁掉更多边缘，让视觉上的菜盘大小接近缩格子前的效果 */
+  transform: scale(1.16);
 }
 
 .tile:hover {
-  transform: translateY(-4px) scale(1.02);
+  /* 移除悬浮放大，避免在移动端/放大后相互遮挡 */
+  transform: none;
 }
 
 /* 点到不能消的菜品时的抖动效果 */
@@ -250,11 +288,12 @@ body {
 }
 
 .caijiamo-wrapper {
-  margin-top: 10px;
-  padding: 10px 12px 8px;
+  margin-top: 0; /* 紧贴上面的白色菜品区 */
+  padding: 8px 12px 10px; /* 减少上方留白，让标题更贴近棋盘 */
   border-radius: var(--radius-lg);
   background: #f3f4f6;
   box-shadow: var(--shadow-soft);
+  min-height: 120px; /* 缩短整体高度，减少中间空白 */
 }
 
 .caijiamo-title {
@@ -272,6 +311,9 @@ body {
   gap: 10px;
   padding: 8px 4px 10px;
   flex-wrap: wrap;
+  min-height: 80px;
+  max-height: 120px;
+  overflow: hidden; /* 多出的 CAIJIAMO 不再撑开整个区域 */
 }
 
 .caijiamo-image {
@@ -396,6 +438,96 @@ body {
   font-size: 18px;
 }
 
+.celebrate-stars {
+  position: relative;
+  height: 40px;
+  margin-bottom: 6px;
+}
+
+.celebrate-stars .star {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 30% 30%, #fef9c3 0, #facc15 40%, #f97316 70%, transparent 72%);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  opacity: 0;
+}
+
+.celebrate-stars.active .star-1 {
+  left: 30%;
+  animation: star-fall 0.8s ease-out forwards;
+}
+
+.celebrate-stars.active .star-2 {
+  left: 50%;
+  animation: star-fall 0.9s ease-out 0.05s forwards;
+}
+
+.celebrate-stars.active .star-3 {
+  left: 70%;
+  animation: star-fall 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes star-fall {
+  0% {
+    transform: translateY(-20px) scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    transform: translateY(4px) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(0) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+}
+
+.unlock-section {
+  margin: 8px 0 14px;
+  text-align: center;
+}
+
+.unlock-title {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.unlock-list {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.unlock-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 2px solid #111827;
+  background: transparent;
+  object-fit: cover;
+  image-rendering: pixelated;
+  visibility: hidden; /* 默认不显示，解锁时由 JS 打开 */
+}
+
 .end-summary {
   display: flex;
   flex-direction: column;
@@ -485,6 +617,58 @@ body {
     width: 42px;
     height: 42px;
   }
+
+  /* 手机上优化 CALENDAR 视图比例 */
+  .calendar-main {
+    gap: 10px;
+  }
+
+  .calendar-month-title {
+    font-size: 10px;
+  }
+
+  .calendar-weekdays {
+    font-size: 7px;
+    margin-bottom: 4px;
+  }
+
+  .calendar-grid {
+    row-gap: 10px;
+  }
+
+  .calendar-cell {
+    min-height: 34px;
+  }
+
+  .calendar-cell-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .calendar-hint {
+    font-size: 7px;
+  }
+
+  .calendar-year-title {
+    font-size: 11px;
+  }
+
+  .calendar-year-bars {
+    gap: 4px;
+  }
+
+  .year-bar-outer {
+    width: 16px;
+    height: 88px;
+  }
+
+  .year-bar-value {
+    font-size: 8px;
+  }
+
+  .year-bar-label {
+    font-size: 7px;
+  }
 }
 
 /* MENU 页面 */
@@ -523,6 +707,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.menu-card-locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+  pointer-events: auto; /* 允许点击收藏小心心 */
 }
 
 .menu-fav-btn {
@@ -571,5 +761,316 @@ body {
   letter-spacing: 0.04em;
   color: #111827;
   word-break: break-word;
+}
+
+.menu-lang-toggle {
+  margin: 6px 0 4px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.menu-lang-btn {
+  min-width: 68px;
+}
+
+.menu-lang-btn.is-active {
+  background: #facc15;
+  color: #111827;
+}
+
+/* CALENDAR 页面 */
+.calendar-root {
+  max-width: 720px;
+}
+
+.calendar-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calendar-toggle {
+  display: inline-flex;
+  align-self: center;
+  border: 3px solid #111827;
+  box-shadow: 4px 4px 0 #111827;
+}
+
+.calendar-toggle-btn {
+  border-radius: 0;
+  padding-inline: 18px;
+}
+
+.calendar-toggle-btn.is-active {
+  background: #facc15;
+  color: #111827;
+}
+
+.calendar-panel {
+  margin-top: 10px;
+  padding: 12px 10px 10px;
+  border-radius: var(--radius-lg);
+  background: #f3f4f6;
+  box-shadow: var(--shadow-soft);
+}
+
+.calendar-panel-hidden {
+  display: none;
+}
+
+.calendar-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.calendar-nav-btn {
+  min-width: 40px;
+  padding-inline: 10px;
+}
+
+.calendar-month-title {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 2px;
+  row-gap: 0;
+  margin-bottom: 6px;
+  font-size: 8px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.calendar-weekdays span {
+  padding: 2px 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  column-gap: 2px; /* 横向间隔略小 */
+  row-gap: 8px; /* 纵向间隔更大 */
+}
+
+.calendar-cell {
+  position: relative;
+  border: none;
+  padding: 0;
+  min-height: 40px;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.calendar-cell-empty {
+  background: transparent;
+}
+
+.calendar-cell-day {
+  display: none; /* 月视图不再显示 1,2,3 这些日期数字 */
+}
+
+.calendar-cell-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background-color: #ffffff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.calendar-cell.is-eaten .calendar-cell-icon {
+  background-image: url('./chengpincaijiamo/caijiamo1.png');
+}
+
+.calendar-hint {
+  margin-top: 6px;
+  font-size: 8px;
+  color: #6b7280;
+}
+
+.calendar-year-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.calendar-year-title {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.calendar-year-bars {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 6px; /* 横向更紧凑 */
+}
+
+.year-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+}
+
+.year-bar-outer {
+  width: 18px;
+  height: 100px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.year-bar-inner {
+  width: 100%;
+  background: repeating-linear-gradient(
+    180deg,
+    #f97316 0,
+    #f97316 6px,
+    #b45309 6px,
+    #b45309 10px
+  );
+}
+
+.year-bar-value {
+  font-size: 9px;
+  color: #111827;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  text-shadow: 0 2px 0 #e5e7eb;
+}
+
+.year-bar-label {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* DISH 页面 */
+.dish-root {
+  max-width: 720px;
+}
+
+.dish-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dish-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  border-radius: var(--radius-lg);
+  background: #f3f4f6;
+  box-shadow: var(--shadow-soft);
+}
+
+.dish-image {
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
+  border: 3px solid #111827;
+  background: #0b1220;
+  object-fit: cover;
+}
+
+.dish-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dish-name-zh {
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+
+.dish-name-en {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.dish-lang-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 2px 0 6px;
+}
+
+.dish-lang-btn {
+  min-width: 68px;
+}
+
+.dish-lang-btn.is-active {
+  background: #facc15;
+  color: #111827;
+}
+
+.dish-recipe-panel {
+  padding: 12px 10px 14px;
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  box-shadow: var(--shadow-soft);
+}
+
+.dish-recipe-text {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #111827;
+}
+
+@media (max-width: 480px) {
+  .dish-hero {
+    align-items: flex-start;
+  }
+
+  .dish-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .dish-name-zh {
+    font-size: 13px;
+  }
+
+  .dish-name-en {
+    font-size: 9px;
+  }
+
+  .dish-recipe-text {
+    font-size: 10px;
+  }
 }
 

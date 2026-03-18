@@ -29,6 +29,54 @@ const ALL_CUISINE_IMAGES = [
 
 const DISH_BATCH_SIZE = 8; // 每局随机抽多少种不同菜品（可调：6~10 都行）
 
+const UNLOCK_STORAGE_KEY = 'caijiamo_unlocked_v1';
+
+function baseIdFromFileName(fileName) {
+  const dotIndex = fileName.lastIndexOf('.');
+  return dotIndex === -1 ? fileName : fileName.slice(0, dotIndex);
+}
+
+function loadUnlockedSet() {
+  try {
+    const raw = localStorage.getItem(UNLOCK_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    return new Set(arr.filter((x) => typeof x === 'string'));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveUnlockedSet(set) {
+  try {
+    localStorage.setItem(UNLOCK_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch {
+    // ignore
+  }
+}
+
+function unlockNewDishes(count) {
+  const unlocked = loadUnlockedSet();
+  const allIds = ALL_CUISINE_IMAGES.map(baseIdFromFileName);
+  const remaining = allIds.filter((id) => !unlocked.has(id));
+  const newly = [];
+  for (let i = 0; i < count && i < remaining.length; i++) {
+    const id = remaining[i];
+    unlocked.add(id);
+    newly.push(id);
+  }
+  if (newly.length > 0) {
+    saveUnlockedSet(unlocked);
+  }
+  return newly;
+}
+
+function cuisineImageSrcFromId(id) {
+  const fileName = `${id}.png`;
+  return `./cuisine/${encodeURIComponent(fileName)}`;
+}
+
 let activeDishTypes = [];
 
 function shuffleCopy(arr) {
@@ -46,7 +94,8 @@ function toDishType(fileName) {
   return {
     id: nameWithoutExt,
     label: nameWithoutExt,
-    image: `./cuisine/${fileName}`,
+    // 文件名含空格时需 URL 编码，否则在很多线上托管/手机浏览器会 404
+    image: `./cuisine/${encodeURIComponent(fileName)}`,
   };
 }
 
@@ -77,9 +126,11 @@ const endCount4El = document.getElementById('endCount4');
 const endCount3El = document.getElementById('endCount3');
 const endCount2El = document.getElementById('endCount2');
 const endCount1El = document.getElementById('endCount1');
+const unlockImg1El = document.getElementById('unlockImg1');
+const unlockImg2El = document.getElementById('unlockImg2');
+const celebrateStarsEl = document.getElementById('celebrateStars');
 
 const restartBtn = document.getElementById('restartBtn');
-const shuffleBtn = document.getElementById('shuffleBtn');
 
 let tiles = [];
 let boardGrid = []; // [row][col] => tile 或 null
@@ -141,8 +192,8 @@ function updateResponsiveMetrics() {
   document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
 
   // 让棋盘高度能完整容纳 7 行格子 + 顶部留白
-  const offsetY = 20;
-  const needed = offsetY + GRID_ROWS * cellSize + 20;
+  const offsetY = 12;
+  const needed = offsetY + GRID_ROWS * cellSize + 12;
   boardEl.style.minHeight = `${needed}px`;
 }
 
@@ -357,6 +408,41 @@ function playDingSound() {
   }
 }
 
+function playWinSparkleSound() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    const now = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+    master.connect(audioCtx.destination);
+
+    const freqs = [880, 1320, 1760];
+    freqs.forEach((f, i) => {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(f, now + i * 0.03);
+      g.gain.setValueAtTime(0.0001, now + i * 0.03);
+      g.gain.exponentialRampToValueAtTime(0.15, now + i * 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      osc.connect(g);
+      g.connect(master);
+      osc.start(now + i * 0.03);
+      osc.stop(now + 0.6);
+    });
+  } catch (e) {
+    // ignore
+  }
+}
+
 function renderEndSummary() {
   const total = comboCount;
   const fullBuns = Math.floor(total / 4);
@@ -419,6 +505,11 @@ function startTimer() {
 
     if (timeBarFillEl) {
       timeBarFillEl.style.transform = `scaleX(${ratio})`;
+      if (remaining <= 10_000) {
+        timeBarFillEl.classList.add('danger');
+      } else {
+        timeBarFillEl.classList.remove('danger');
+      }
     }
 
     if (remaining <= 0) {
@@ -579,12 +670,39 @@ function updateCaijiamoDisplay() {
 function showEnd() {
   gameOver = true;
   renderEndSummary();
+  const newly = unlockNewDishes(2);
+  if (celebrateStarsEl) {
+    celebrateStarsEl.classList.remove('active');
+    // 触发一次 reflow，重新启动动画
+    void celebrateStarsEl.offsetWidth;
+    celebrateStarsEl.classList.add('active');
+  }
+  playWinSparkleSound();
+  if (unlockImg1El) {
+    if (newly[0]) {
+      unlockImg1El.src = cuisineImageSrcFromId(newly[0]);
+      unlockImg1El.alt = newly[0];
+      unlockImg1El.style.visibility = 'visible';
+    } else {
+      unlockImg1El.style.visibility = 'hidden';
+    }
+  }
+  if (unlockImg2El) {
+    if (newly[1]) {
+      unlockImg2El.src = cuisineImageSrcFromId(newly[1]);
+      unlockImg2El.alt = newly[1];
+      unlockImg2El.style.visibility = 'visible';
+    } else {
+      unlockImg2El.style.visibility = 'hidden';
+    }
+  }
   endOverlayEl.classList.remove('hidden');
   if (timerRaf) {
     cancelAnimationFrame(timerRaf);
     timerRaf = 0;
   }
   if (timeBarFillEl) {
+    timeBarFillEl.classList.remove('danger');
     timeBarFillEl.style.transform = 'scaleX(0)';
   }
 }
@@ -597,6 +715,10 @@ function resetGame() {
   if (stepCountEl) stepCountEl.textContent = '0';
   if (comboCountEl) comboCountEl.textContent = '0';
   endOverlayEl.classList.add('hidden');
+   if (timeBarFillEl) {
+     timeBarFillEl.classList.remove('danger');
+     timeBarFillEl.style.transform = 'scaleX(1)';
+   }
 
   // 每次新游戏随机抽一批不同菜品
   pickNewDishBatch();
@@ -606,11 +728,6 @@ function resetGame() {
 }
 
 restartBtn.addEventListener('click', resetGame);
-shuffleBtn.addEventListener('click', () => {
-  if (gameOver || !gameStarted) return;
-  layoutBoard();
-  startTimer();
-});
 
 window.addEventListener('load', () => {
   // 初次加载也先抽一批菜品（点击开始后会再次抽一批）

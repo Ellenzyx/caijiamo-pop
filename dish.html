@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <title>CAIJIAMO POP - MENU</title>
+    <title>CAIJIAMO POP - DISH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0b1220" />
     <link
@@ -13,36 +13,43 @@
     <link rel="manifest" href="./manifest.webmanifest" />
   </head>
   <body>
-    <div class="game-root menu-root">
+    <div class="game-root dish-root">
       <header class="game-header">
-        <div class="game-title">MENU</div>
-        <button class="ghost-btn" type="button" onclick="location.href='./index.html'">
+        <div class="game-title">DISH</div>
+        <button class="ghost-btn" type="button" onclick="history.back()">
           BACK
         </button>
       </header>
 
-      <main class="menu-main">
-        <section class="menu-lang-toggle">
+      <main class="dish-main">
+        <section class="dish-lang-toggle">
           <button
-            id="menuLangZhBtn"
-            class="primary-btn menu-lang-btn is-active"
+            id="langZhBtn"
+            class="primary-btn dish-lang-btn is-active"
             type="button"
           >
             中
           </button>
-          <button
-            id="menuLangEnBtn"
-            class="ghost-btn menu-lang-btn"
-            type="button"
-          >
+          <button id="langEnBtn" class="ghost-btn dish-lang-btn" type="button">
             ENG
           </button>
         </section>
-        <div id="menuGrid" class="menu-grid" aria-label="Cuisine list"></div>
+
+        <section class="dish-hero">
+          <img id="dishImage" class="dish-image" alt="" />
+          <div class="dish-title-block">
+            <div id="dishNameZh" class="dish-name-zh"></div>
+            <div id="dishNameEn" class="dish-name-en"></div>
+          </div>
+        </section>
+
+        <section class="dish-recipe-panel">
+          <div id="dishRecipe" class="dish-recipe-text"></div>
+        </section>
       </main>
     </div>
 
-    <script src="./menu.js"></script>
+    <script src="./dish.js"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -52,3 +59,4 @@
     </script>
   </body>
 </html>
+

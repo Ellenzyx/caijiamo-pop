@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CAIJIAMO POP - CALENDAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1220" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+  </head>
+  <body>
+    <div class="game-root calendar-root">
+      <header class="game-header">
+        <div class="game-title">CALENDAR</div>
+        <button class="ghost-btn" type="button" onclick="location.href='./index.html'">
+          BACK
+        </button>
+      </header>
+
+      <main class="calendar-main">
+        <div class="calendar-toggle">
+          <button id="monthViewBtn" class="primary-btn calendar-toggle-btn is-active">
+            MONTH
+          </button>
+          <button id="yearViewBtn" class="ghost-btn calendar-toggle-btn">
+            YEAR
+          </button>
+        </div>
+
+        <section id="monthView" class="calendar-panel">
+          <header class="calendar-month-header">
+            <button id="prevMonthBtn" class="ghost-btn calendar-nav-btn" type="button">
+              ◀
+            </button>
+            <div class="calendar-month-title" id="monthTitle"></div>
+            <button id="nextMonthBtn" class="ghost-btn calendar-nav-btn" type="button">
+              ▶
+            </button>
+          </header>
+          <div class="calendar-weekdays">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+          <div id="calendarGrid" class="calendar-grid" aria-label="Calendar days"></div>
+          <div class="calendar-hint">
+            Tap a day to add/remove a CAIJIAMO.
+          </div>
+        </section>
+
+        <section id="yearView" class="calendar-panel calendar-panel-hidden">
+          <header class="calendar-year-header">
+            <button id="prevYearBtn" class="ghost-btn calendar-nav-btn" type="button">
+              ◀
+            </button>
+            <div class="calendar-year-title" id="yearTitle"></div>
+            <button id="nextYearBtn" class="ghost-btn calendar-nav-btn" type="button">
+              ▶
+            </button>
+          </header>
+          <div id="yearBars" class="calendar-year-bars"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./calendar.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js');
+        });
+      }
+    </script>
+  </body>
+</html>
+

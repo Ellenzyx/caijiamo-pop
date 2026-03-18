@@ -4,17 +4,19 @@
     <meta charset="UTF-8" />
     <title>菜夹馍消消乐</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1220" />
     <!-- 像素风字体，接近星露谷的数码感 -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
     />
     <link rel="stylesheet" href="./style.css" />
+    <link rel="manifest" href="./manifest.webmanifest" />
   </head>
   <body>
     <div class="game-root">
       <header class="game-header">
-        <div class="game-title">CAI JIA MO POP</div>
+        <div class="game-title">CAIJIAMO POP</div>
         <div class="timebar" aria-label="Time bar">
           <div id="timeBarFill" class="timebar-fill"></div>
         </div>
@@ -23,9 +25,17 @@
       <main class="game-main">
         <div id="startOverlay" class="start-overlay">
           <div class="start-content">
-            <img class="start-logo" src="./chengpincaijiamo/caijiamo1.png" alt="CAIJIAMO" />
+            <img class="start-logo" src="./chengpincaijiamo/caijiamo0.png" alt="CAIJIAMO" />
             <button id="startBtn" class="primary-btn start-btn">START</button>
             <button id="menuBtn" class="ghost-btn start-btn" type="button" onclick="location.href='./menu.html'">MENU</button>
+            <button
+              id="calendarBtn"
+              class="ghost-btn start-btn"
+              type="button"
+              onclick="location.href='./calendar.html'"
+            >
+              CALENDAR
+            </button>
           </div>
         </div>
 
@@ -34,6 +44,11 @@
           <div class="board-overlay hidden" id="endOverlay">
             <div class="overlay-content">
               <h2>CAIJIAMO READY!</h2>
+              <div id="celebrateStars" class="celebrate-stars">
+                <span class="star star-1"></span>
+                <span class="star star-2"></span>
+                <span class="star star-3"></span>
+              </div>
               <div class="end-summary" id="endSummary">
                 <div class="end-row">
                   <img class="end-img" src="./chengpincaijiamo/caijiamo4.png" alt="caijiamo4" />
@@ -52,6 +67,13 @@
                   <div class="end-mult">x <span id="endCount1">0</span></div>
                 </div>
               </div>
+              <div class="unlock-section">
+                <div class="unlock-title">NEW DISHES</div>
+                <div class="unlock-list">
+                  <img id="unlockImg1" class="unlock-img" alt="" />
+                  <img id="unlockImg2" class="unlock-img" alt="" />
+                </div>
+              </div>
               <button id="restartBtn" class="primary-btn">再来一份</button>
             </div>
           </div>
@@ -63,13 +85,17 @@
         </section>
       </main>
 
-      <footer class="game-footer">
-        <button id="shuffleBtn" class="ghost-btn">REFRESH DISHES</button>
-        <span class="tip-text">Pick three connected same dishes to cook one CAIJIAMO. Your CAIJIAMO bar grows with each set!</span>
-      </footer>
+      <footer class="game-footer"></footer>
     </div>
 
     <script src="./game.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js');
+        });
+      }
+    </script>
   </body>
   </html>
 
